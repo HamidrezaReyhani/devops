@@ -1,0 +1,23 @@
+{
+  "id": null,
+  "uid": "flask-postgres",
+  "title": "Flask + Postgres",
+  "tags": [],
+  "timezone": "browser",
+  "schemaVersion": 27,
+  "version": 1,
+  "panels": [
+    {
+      "type": "graph",
+      "title": "App Requests",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "targets": [{"expr": "app_requests_total", "refId": "A"}]
+    },
+    {
+      "type": "graph",
+      "title": "DB Queries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "targets": [{"expr": "db_queries_total", "refId": "A"}]
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+stages:
+  - test
+  - build
+  - deploy
+
+
+variables:
+  DOCKER_IMAGE: "$CI_REGISTRY_IMAGE/flask-app"
+
+
+unit-tests:
+  stage: test
+  image: python:3.9-slim
+  before_script:
+    - export PYTHONPATH="$CI_PROJECT_DIR:$PYTHONPATH"
+    - pip install -r app/requirements.txt --break-system-packages
+    - pip install -r app/requirements-dev.txt --break-system-packages
+  script:
+    - pytest --cov=app tests/ --cov-report=term --cov-report=xml
+  coverage: '/TOTAL\s+\d+\%\s+(\d+)/'
+
+security-scan:
+  stage: test
+  image: python:3.9-slim
+  script:
+    - bandit -r app/ -ll -f json -o bandit-report.json || true
+  artifacts:
+    paths:
+      - bandit-report.json
+    expire_in: 1 week
+
+health:
+  stage: test
+  script:
+    - docker-compose up -d --build
+    - sleep 3
+    - curl -f http://localhost:5010/health
+    - curl -f http://localhost:5010/data
+    - docker-compose down
+
+
+build:
+  stage: build
+  script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker build -t $DOCKER_IMAGE:latest ./app
+    - docker push $DOCKER_IMAGE:latest
+
+deploy:
+  stage: deploy
+  script:
+    - docker-compose down
+    - docker-compose up -d --build

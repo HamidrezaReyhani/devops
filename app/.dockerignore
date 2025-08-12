@@ -1,0 +1,14 @@
+.git
+.gitignore
+.env
+*.md
+*.yml
+*.yaml
+*.sh
+*.json
+tests/
+__pycache__/
+*.pyc
+*.pyo
+venv/
+env/
